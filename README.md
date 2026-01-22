@@ -26,8 +26,8 @@ To build this project, you need a Linux environment with the following dependenc
 
 1.  **Clone the repository**:
     ```bash
-    git clone <your-repo-url>
-    cd X11_engine
+    git clone https://github.com/Vasco-Alves/x11-engine.git
+    cd x11-engine
     ```
 
 2.  **Create a build directory**:
