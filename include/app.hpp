@@ -1,51 +1,12 @@
 #pragma once
 
 #include "color.hpp"
-#include "input.hpp"
-#include "renderer.hpp"
+#include "objects.hpp"
 
-#include <memory> // Required for std::unique_ptr
+#include <memory>
 #include <vector>
 
 namespace x11engine {
-
-// 1. Abstract Base Class
-class Object {
-public:
-    Object(int x, int y) : x(x), y(y) {}
-    virtual ~Object() = default;
-
-    virtual void Update(Input &input) {}
-
-    virtual void Draw(Renderer &renderer) = 0;
-
-protected:
-    int x, y;
-};
-
-class Square : public Object {
-public:
-    Square(int x, int y, int w, int h, int c) : Object(x, y), width(w), height(h), color(c) {}
-
-    void Update(Input &input) override {
-        if (input.IsKeyDown(XK_Right))
-            x += 1;
-        if (input.IsKeyDown(XK_Left))
-            x -= 1;
-        if (input.IsKeyDown(XK_Down))
-            y += 1;
-        if (input.IsKeyDown(XK_Up))
-            y -= 1;
-    }
-
-    void Draw(Renderer &renderer) override {
-        renderer.DrawRect(x, y, width, height, color);
-    }
-
-private:
-    int width, height;
-    int color;
-};
 
 class App {
 public:
@@ -64,7 +25,8 @@ public:
         this->renderer = renderer;
         this->input = input;
 
-        objects.push_back(std::make_unique<Square>(10, 10, 100, 100, color::WHITE));
+        // objects.push_back(std::make_unique<objects::Square>(0, 0, 100, 100, color::WHITE));
+        objects.push_back(std::make_unique<objects::Cube>(0, 0, 100, color::WHITE));
 
         return true;
     }
@@ -79,14 +41,16 @@ public:
     }
 
     void Draw() {
-        renderer->clear(color::BLACK);
+        renderer->Clear(color::BLACK);
 
         for (auto &object : objects) {
             object->Draw(*renderer);
         }
     }
 
-    bool ShouldClose() { return shouldClose; }
+    bool ShouldClose() {
+        return shouldClose;
+    }
 
     void Close() {
         shouldClose = true;
@@ -96,7 +60,7 @@ private:
     Renderer *renderer;
     Input *input;
 
-    std::vector<std::unique_ptr<Object>> objects;
+    std::vector<std::unique_ptr<objects::Object>> objects;
 
     bool shouldClose;
 };
