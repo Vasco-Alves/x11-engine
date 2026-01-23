@@ -13,9 +13,7 @@ namespace x11engine {
 
 class Renderer {
 public:
-    Renderer(int width, int height)
-        : width(width), height(height), framebuffer(nullptr), image(nullptr) {
-
+    Renderer(int width, int height) : width(width), height(height), framebuffer(nullptr), image(nullptr) {
         framebuffer = new uint32_t[width * height];
         Clear(color::BLACK);
     }
@@ -60,7 +58,6 @@ public:
 
     // Bresenham's line algorithm
     void DrawLine(int x0, int y0, int x1, int y1, uint32_t color) {
-        // No MapToScreenCoord here!
         int dx = std::abs(x1 - x0);
         int dy = -std::abs(y1 - y0);
         int sx = x0 < x1 ? 1 : -1;

@@ -2,7 +2,8 @@
 
 #include "input.hpp"
 #include "math.hpp"
-#include <cmath> // Required for cos/sin
+
+#include <cmath>
 
 namespace x11engine::camera {
 
@@ -22,7 +23,7 @@ public:
 
     void Update(const Input &input) {
         // 1. Rotation
-        float rotSpeed = 2.0f; // Sensitivity
+        float rotSpeed = 2.0f;
         if (input.IsKeyDown(XK_Left))
             yaw -= rotSpeed;
         if (input.IsKeyDown(XK_Right))
@@ -90,6 +91,10 @@ public:
 
     math::Mat4 GetProjectionMatrix() const noexcept {
         return math::perspective(math::radians(fov_degrees), aspect_ratio, near_plane, far_plane);
+    }
+
+    void SetAspectRatio(float aspect) {
+        aspect_ratio = aspect;
     }
 
 public:

@@ -53,3 +53,6 @@ After building, the binary can be found in the `build/bin` directory (or whereve
 ```bash
 ./bin/X11Engine
 ```
+
+## Screenshot
+![Screenshot](imgs/img.png)

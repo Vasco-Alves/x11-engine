@@ -11,17 +11,10 @@ namespace x11engine::math {
 
 constexpr float pi = 3.14159265358979323846f;
 
-constexpr float radians(float degrees) noexcept {
-    return degrees * (pi / 180.0f);
-}
+constexpr float radians(float degrees) noexcept { return degrees * (pi / 180.0f); }
+constexpr float degrees(float radians) noexcept { return radians * (180.0f / pi); }
 
-constexpr float degrees(float radians) noexcept {
-    return radians * (180.0f / pi);
-}
-
-struct Vec2 {
-    float x, y;
-};
+struct Vec2 { float x, y; };
 
 struct Vec3 {
     float x, y, z;
@@ -31,26 +24,20 @@ struct Vec3 {
 
     constexpr float &operator[](std::size_t index) noexcept {
         assert(index < 3);
-        if (index == 0)
-            return x;
-        if (index == 1)
-            return y;
+        if (index == 0) return x;
+        if (index == 1) return y;
         return z;
     }
 
     constexpr const float &operator[](std::size_t index) const noexcept {
         assert(index < 3);
-        if (index == 0)
-            return x;
-        if (index == 1)
-            return y;
+        if (index == 0) return x;
+        if (index == 1) return y;
         return z;
     }
 
-    // Unary
     constexpr Vec3 operator-() const noexcept { return {-x, -y, -z}; }
 
-    // Compound assignment
     constexpr Vec3 &operator+=(const Vec3 &rhs) noexcept {
         x += rhs.x;
         y += rhs.y;
@@ -109,7 +96,6 @@ inline Vec3 normalize(const Vec3 &v) noexcept {
 
 // Vec4 (SIMD Optimized)
 struct alignas(16) Vec4 {
-    // Anonymous union for SIMD access vs member access
     union {
         struct {
             float x, y, z, w;
@@ -127,12 +113,9 @@ struct alignas(16) Vec4 {
 
     constexpr float &operator[](std::size_t index) noexcept {
         assert(index < 4);
-        if (index == 0)
-            return x;
-        if (index == 1)
-            return y;
-        if (index == 2)
-            return z;
+        if (index == 0) return x;
+        if (index == 1) return y;
+        if (index == 2) return z;
         return w;
     }
 
@@ -186,23 +169,17 @@ struct alignas(16) Mat4 {
 
     constexpr Vec4 &operator[](std::size_t index) noexcept {
         assert(index < 4);
-        if (index == 0)
-            return c0;
-        if (index == 1)
-            return c1;
-        if (index == 2)
-            return c2;
+        if (index == 0) return c0;
+        if (index == 1) return c1;
+        if (index == 2) return c2;
         return c3;
     }
 
     constexpr const Vec4 &operator[](std::size_t index) const noexcept {
         assert(index < 4);
-        if (index == 0)
-            return c0;
-        if (index == 1)
-            return c1;
-        if (index == 2)
-            return c2;
+        if (index == 0) return c0;
+        if (index == 1) return c1;
+        if (index == 2) return c2;
         return c3;
     }
 
@@ -211,7 +188,8 @@ struct alignas(16) Mat4 {
             {1, 0, 0, 0},
             {0, 1, 0, 0},
             {0, 0, 1, 0},
-            {0, 0, 0, 1}};
+            {0, 0, 0, 1}
+        };
     }
 
     static constexpr Mat4 translation(float x, float y, float z) noexcept {
@@ -219,7 +197,8 @@ struct alignas(16) Mat4 {
             {1, 0, 0, 0},
             {0, 1, 0, 0},
             {0, 0, 1, 0},
-            {x, y, z, 1}};
+            {x, y, z, 1}
+        };
     }
 
     static constexpr Mat4 scale(float x, float y, float z) noexcept {
@@ -227,7 +206,8 @@ struct alignas(16) Mat4 {
             {x, 0, 0, 0},
             {0, y, 0, 0},
             {0, 0, z, 0},
-            {0, 0, 0, 1}};
+            {0, 0, 0, 1}
+        };
     }
 
     static Mat4 rotationX(float angleRadians) noexcept {
@@ -237,7 +217,8 @@ struct alignas(16) Mat4 {
             {1, 0, 0, 0},
             {0, c, s, 0},
             {0, -s, c, 0},
-            {0, 0, 0, 1}};
+            {0, 0, 0, 1}
+        };
     }
 
     static Mat4 rotationY(float angleRadians) noexcept {
@@ -247,7 +228,8 @@ struct alignas(16) Mat4 {
             {c, 0, -s, 0},
             {0, 1, 0, 0},
             {s, 0, c, 0},
-            {0, 0, 0, 1}};
+            {0, 0, 0, 1}
+        };
     }
 
     static Mat4 rotationZ(float angleRadians) noexcept {
@@ -257,7 +239,8 @@ struct alignas(16) Mat4 {
             {c, s, 0, 0},
             {-s, c, 0, 0},
             {0, 0, 1, 0},
-            {0, 0, 0, 1}};
+            {0, 0, 0, 1}
+        };
     }
 };
 
@@ -271,7 +254,6 @@ inline Vec4 operator*(const Mat4 &m, const Vec4 &v) noexcept {
             m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z + m.c3.z * v.w,
             m.c0.w * v.x + m.c1.w * v.y + m.c2.w * v.z + m.c3.w * v.w};
     } else {
-        // Use m.c0.mm instead of m.cols[0]
         __m128 res = _mm_mul_ps(m.c0.mm, _mm_set1_ps(v.x));
         res = _mm_add_ps(res, _mm_mul_ps(m.c1.mm, _mm_set1_ps(v.y)));
         res = _mm_add_ps(res, _mm_mul_ps(m.c2.mm, _mm_set1_ps(v.z)));
@@ -282,7 +264,6 @@ inline Vec4 operator*(const Mat4 &m, const Vec4 &v) noexcept {
 
 // SIMD Matrix-Matrix Multiplication
 inline Mat4 operator*(const Mat4 &a, const Mat4 &b) noexcept {
-    // We unroll the loop here, which is safer than relying on pointer casts and just as fast (often faster due to pipelining).
     Mat4 res;
     res.c0 = a * b.c0;
     res.c1 = a * b.c1;

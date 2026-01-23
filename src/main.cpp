@@ -1,8 +1,8 @@
 #include "engine.hpp"
 
 // Aspect ratio 4:3
-const int WIDTH = 800;
-const int HEIGHT = 600;
+const int WIDTH = 1280;
+const int HEIGHT = 960;
 
 int main() {
     x11engine::Engine engine(WIDTH, HEIGHT, "Minimal Software Renderer (Linux)");

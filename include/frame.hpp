@@ -9,8 +9,7 @@ namespace x11engine {
 
 class Frame {
 public:
-    Frame(int width, int height, const std::string &title)
-        : width(width), height(height), title(title), display(nullptr), window(0) {}
+    Frame(int width, int height, const std::string &title) : width(width), height(height), title(title), display(nullptr), window(0) {}
 
     ~Frame() {
         if (display) {
@@ -50,13 +49,21 @@ public:
         return true;
     }
 
-    Display *GetDisplay() const { return display; }
-    Window GetWindow() const { return window; }
-    int GetScreen() const { return screen; }
-    Atom GetWMDeleteMessage() const { return wmDeleteMessage; }
+    Display *GetDisplay() const {
+        return display;
+    }
 
-    int GetWidth() const { return width; }
-    int GetHeight() const { return height; }
+    Window GetWindow() const {
+        return window;
+    }
+
+    int GetScreen() const {
+        return screen;
+    }
+
+    Atom GetWMDeleteMessage() const {
+        return wmDeleteMessage;
+    }
 
 private:
     int width;

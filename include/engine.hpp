@@ -57,13 +57,11 @@ private:
             XNextEvent(frame.GetDisplay(), &event);
 
             // Handle Window Close
-            if (event.type == ClientMessage) {
-                if ((Atom)event.xclient.data.l[0] == frame.GetWMDeleteMessage()) {
+            if (event.type == ClientMessage)
+                if ((Atom)event.xclient.data.l[0] == frame.GetWMDeleteMessage())
                     app.Close();
-                }
-            }
-            // Pass to Input Manager
-            input.ProcessEvent(event);
+
+            input.ProcessEvent(event); // Pass to Input Manager
         }
     }
 
