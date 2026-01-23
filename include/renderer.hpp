@@ -52,12 +52,7 @@ public:
         if (!image)
             return;
 
-        XPutImage(
-            frame.GetDisplay(), frame.GetWindow(),
-            DefaultGC(frame.GetDisplay(), frame.GetScreen()),
-            image,
-            0, 0, 0, 0,
-            width, height);
+        XPutImage(frame.GetDisplay(), frame.GetWindow(), DefaultGC(frame.GetDisplay(), frame.GetScreen()), image, 0, 0, 0, 0, width, height);
 
         // Sync to ensure commands are processed
         XSync(frame.GetDisplay(), False);
@@ -65,9 +60,7 @@ public:
 
     // Bresenham's line algorithm
     void DrawLine(int x0, int y0, int x1, int y1, uint32_t color) {
-        MapToScreenCoord(x0, y0);
-        MapToScreenCoord(x1, y1);
-
+        // No MapToScreenCoord here!
         int dx = std::abs(x1 - x0);
         int dy = -std::abs(y1 - y0);
         int sx = x0 < x1 ? 1 : -1;
@@ -78,13 +71,11 @@ public:
             DrawPixelScreen(x0, y0, color);
             if (x0 == x1 && y0 == y1)
                 break;
-
             int e2 = 2 * err;
             if (e2 >= dy) {
                 err += dy;
                 x0 += sx;
             }
-
             if (e2 <= dx) {
                 err += dx;
                 y0 += sy;
@@ -92,17 +83,14 @@ public:
         }
     }
 
+    // Draws a filled rectangle centered at (x, y)
     void DrawRect(int x, int y, int w, int h, uint32_t color) {
-        MapToScreenCoord(x, y);
-
         int startX = std::max(0, x - w / 2);
         int startY = std::max(0, y - h / 2);
         int endX = std::min(width, x + w / 2);
         int endY = std::min(height, y + h / 2);
 
-        // 3. Draw only the valid visible part
         for (int py = startY; py < endY; ++py) {
-            // Optimization: Calculate row offset once per row
             int rowOffset = py * width;
             for (int px = startX; px < endX; ++px) {
                 framebuffer[rowOffset + px] = color;
@@ -111,8 +99,6 @@ public:
     }
 
     void DrawRectWireframe(int x, int y, int w, int h, uint32_t color) {
-        MapToScreenCoord(x, y);
-
         int left = x - w / 2;
         int right = x + w / 2;
         int top = y - h / 2;
@@ -139,6 +125,9 @@ public:
     }
 
     uint32_t *GetFramebuffer() { return framebuffer; }
+
+    int GetWidth() const { return width; }
+    int GetHeight() const { return height; }
 
 private:
     // Transform from Center-Origin to Top-Left-Origin

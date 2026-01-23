@@ -1,7 +1,9 @@
 #pragma once
 
+#include "camera.hpp"
 #include "color.hpp"
 #include "objects.hpp"
+#include "objects3d.hpp"
 
 #include <memory>
 #include <vector>
@@ -25,8 +27,9 @@ public:
         this->renderer = renderer;
         this->input = input;
 
-        // objects.push_back(std::make_unique<objects::Square>(0, 0, 100, 100, color::WHITE));
-        objects.push_back(std::make_unique<objects::Cube>(0, 0, 100, color::WHITE));
+        // Create some test objects
+        objects.push_back(std::make_unique<objects::Cube>(0, 0, -200, 100, color::RED));
+        objects.push_back(std::make_unique<objects::Cube>(150, 0, -200, 100, color::WHITE));
 
         return true;
     }
@@ -34,6 +37,8 @@ public:
     void Update() {
         if (input->IsKeyDown(XK_Escape))
             shouldClose = true;
+
+        camera.Update(*input);
 
         for (auto &object : objects) {
             object->Update(*input);
@@ -43,26 +48,26 @@ public:
     void Draw() {
         renderer->Clear(color::BLACK);
 
-        for (auto &object : objects) {
-            object->Draw(*renderer);
-        }
+        // Compute ViewProjection Matrix
+        math::Mat4 view = camera.GetViewMatrix();
+        math::Mat4 proj = camera.GetProjectionMatrix();
+        math::Mat4 vp = proj * view;
+
+        for (auto &object : objects)
+            object->Draw(*renderer, vp);
     }
 
-    bool ShouldClose() {
-        return shouldClose;
-    }
-
-    void Close() {
-        shouldClose = true;
-    }
+    bool ShouldClose() { return shouldClose; }
+    void Close() { shouldClose = true; }
 
 private:
+    bool shouldClose;
+
     Renderer *renderer;
     Input *input;
 
+    camera::Camera camera;
     std::vector<std::unique_ptr<objects::Object>> objects;
-
-    bool shouldClose;
 };
 
 } // namespace x11engine

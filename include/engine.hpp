@@ -77,11 +77,12 @@ private:
     }
 
 private:
+    bool running;
+
     Frame frame;
     Renderer renderer;
     Input input;
     App app;
-    bool running;
 };
 
 } // namespace x11engine
