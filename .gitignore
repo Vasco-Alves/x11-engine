@@ -32,6 +32,8 @@ install_manifest.txt
 *~
 .DS_Store
 Thumbs.db
+.clang-format
+.editorconfig
 
 # Executable name (just in case it ends up in root)
 X11Engine
