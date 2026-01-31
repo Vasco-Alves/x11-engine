@@ -5,6 +5,7 @@
 #include "input.hpp"
 #include "renderer.hpp"
 
+#include <chrono>
 #include <unistd.h>
 
 namespace x11engine {
@@ -31,7 +32,21 @@ public:
     }
 
     void Run() {
+        auto startTime = std::chrono::high_resolution_clock::now();
+        int frameCount = 0;
+
         while (!app.ShouldClose()) {
+            frameCount++;
+            auto currentTime = std::chrono::high_resolution_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(currentTime - startTime).count();
+
+            if (elapsed >= 1) {
+                std::string newTitle = "X11 Engine - FPS: " + std::to_string(frameCount);
+                XStoreName(frame.GetDisplay(), frame.GetWindow(), newTitle.c_str());
+                frameCount = 0;
+                startTime = currentTime;
+            }
+
             HandleEvents();
             Update();
             Render();
@@ -56,12 +71,22 @@ private:
         while (XPending(frame.GetDisplay()) > 0) {
             XNextEvent(frame.GetDisplay(), &event);
 
-            // Handle Window Close
-            if (event.type == ClientMessage)
+            if (event.type == ClientMessage) {
                 if ((Atom)event.xclient.data.l[0] == frame.GetWMDeleteMessage())
                     app.Close();
+            }
 
-            input.ProcessEvent(event); // Pass to Input Manager
+            if (event.type == ConfigureNotify) {
+                int newWidth = event.xconfigure.width;
+                int newHeight = event.xconfigure.height;
+
+                if (newWidth != renderer.GetWidth() || newHeight != renderer.GetHeight()) {
+                    renderer.Resize(frame, newWidth, newHeight);
+                    app.OnResize(newWidth, newHeight);
+                }
+            }
+
+            input.ProcessEvent(event);
         }
     }
 

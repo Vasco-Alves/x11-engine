@@ -49,6 +49,12 @@ public:
         return true;
     }
 
+    void Resize(int newWidth, int newHeight) {
+        width = newWidth;
+        height = newHeight;
+        XResizeWindow(display, window, width, height);
+    }
+
     Display *GetDisplay() const {
         return display;
     }

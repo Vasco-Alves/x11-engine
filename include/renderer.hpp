@@ -117,14 +117,41 @@ public:
             DrawPixelScreen(right, py, color);
     }
 
+    void Resize(const Frame &frame, int newWidth, int newHeight) {
+        if (newWidth == width && newHeight == height)
+            return;
+
+        // 1. Clean up old resources
+        if (image) {
+            image->data = NULL; // Decouple before destroying
+            XDestroyImage(image);
+        }
+        delete[] framebuffer;
+
+        // 2. Update dimensions and allocate new buffer
+        width = newWidth;
+        height = newHeight;
+        framebuffer = new uint32_t[width * height];
+
+        // 3. Re-initialize XImage
+        Init(frame);
+    }
+
     void Clear(uint32_t color) {
         std::fill_n(framebuffer, width * height, color);
     }
 
-    uint32_t *GetFramebuffer() { return framebuffer; }
+    uint32_t *GetFramebuffer() {
+        return framebuffer;
+    }
 
-    int GetWidth() const { return width; }
-    int GetHeight() const { return height; }
+    int GetWidth() const {
+        return width;
+    }
+
+    int GetHeight() const {
+        return height;
+    }
 
 private:
     // Transform from Center-Origin to Top-Left-Origin

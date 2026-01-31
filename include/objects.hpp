@@ -73,7 +73,17 @@ public:
             {-0.5f, 0.5f, 0.5f}};
     }
 
-    void Update(Input &input) override {}
+    void Update(Input &input) override {
+        float rotSpeed = 1.0f;
+
+        rotation.x += rotSpeed;
+        rotation.y += rotSpeed;
+        rotation.z += rotSpeed;
+
+        if (rotation.x >= 360.0f) rotation.x -= 360.0f;
+        if (rotation.y >= 360.0f) rotation.y -= 360.0f;
+        if (rotation.z >= 360.0f) rotation.z -= 360.0f;
+    }
 
     void Draw(Renderer &renderer, const Mat4 &viewProj) override {
         Mat4 model = GetModelMatrix();

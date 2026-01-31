@@ -61,8 +61,19 @@ public:
             object->Draw(*renderer, vp);
     }
 
-    bool ShouldClose() { return shouldClose; }
-    void Close() { shouldClose = true; }
+    void OnResize(int newWidth, int newHeight) {
+        if (newHeight > 0) {
+            camera.SetAspectRatio(static_cast<float>(newWidth) / static_cast<float>(newHeight));
+        }
+    }
+
+    void Close() {
+        shouldClose = true;
+    }
+
+    bool ShouldClose() {
+        return shouldClose;
+    }
 
 private:
     bool shouldClose;
