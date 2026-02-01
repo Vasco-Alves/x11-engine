@@ -9,17 +9,20 @@
 
 namespace x11engine {
 
-    class Application; // Forward declaration
+    const double TICK_RATE = 60.0;
+    const double TARGET_FPS = 0.0;
+
+    class Application;
 
     class Engine {
-      public:
+    public:
         Engine(int width, int height, const std::string& title, Application* app);
-        ~Engine(); // Define in cpp to allow forward declared Application
+        ~Engine();
 
         bool Init();
         void Run();
 
-      private:
+    private:
         void WaitForMapNotify();
         void HandleEvents();
 

@@ -40,9 +40,8 @@ namespace x11engine {
     }
 
     void Renderer::Clear(uint32_t color) {
-        std::fill_n(framebuffer, width * height, color);
-
-        // memset(framebuffer, 0x001100, width * height * sizeof(uint32_t));
+        // std::fill_n(framebuffer, width * height, color);
+        memset(framebuffer, 0x001100, width * height * sizeof(uint32_t));
     }
 
     void Renderer::Resize(const Frame& frame, int newWidth, int newHeight) {

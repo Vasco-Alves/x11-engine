@@ -6,7 +6,7 @@ namespace x11engine {
     class Input;
 
     class Application {
-      public:
+    public:
         virtual ~Application() = default;
 
         virtual bool OnCreate() = 0;
@@ -20,7 +20,7 @@ namespace x11engine {
         Renderer* renderer = nullptr;
         Input* input = nullptr;
 
-      private:
+    private:
         bool shouldClose = false;
     };
 

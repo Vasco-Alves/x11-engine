@@ -6,7 +6,7 @@
 namespace x11engine {
 
     class Frame {
-      public:
+    public:
         Frame(int width, int height, const std::string& title);
         ~Frame();
 
@@ -18,7 +18,7 @@ namespace x11engine {
         int GetScreen() const;
         Atom GetWMDeleteMessage() const;
 
-      private:
+    private:
         int width;
         int height;
         std::string title;

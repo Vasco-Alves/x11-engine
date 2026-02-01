@@ -73,19 +73,18 @@ namespace x11engine {
         auto lastTime = high_resolution_clock::now();
 
         // --- Configuration ---
-        const double tickRate = 60.0;     // Logic updates per second
-        const double dt = 1.0 / tickRate; // Constant time step
+        const double tickRate = TICK_RATE; // Logic updates per second
+        const double dt = 1.0 / tickRate;  // Constant time step
 
-        double targetFps = 100.0;              // Desired rendering FPS
+        double targetFps = TARGET_FPS;         // Desired rendering FPS
         double minFrameTime = 1.0 / targetFps; // Minimum duration of one frame
 
         double accumulator = 0.0;
         int frameCount = 0;
 
         while (running) {
-            if (app && app->ShouldClose()) {
+            if (app && app->ShouldClose())
                 running = false;
-            }
 
             auto currentTime = high_resolution_clock::now();
             double frameTime = duration<double>(currentTime - lastTime).count();

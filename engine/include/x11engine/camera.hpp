@@ -2,16 +2,14 @@
 
 #include <x11engine/math.hpp>
 
-// Forward declaration to avoid pulling in the heavy input header here if not strictly needed in the signature,
-// but since Update takes 'const Input&', we usually need the type definition or at least a forward declaration.
-// For cleaner headers, we can forward declare Input if we don't dereference it in the header.
 namespace x11engine {
+
     class Input;
 
     namespace camera {
 
         class Camera {
-          public:
+        public:
             Camera();
 
             // Updates camera position and rotation based on user input
@@ -25,7 +23,7 @@ namespace x11engine {
 
             void SetAspectRatio(float aspect) { aspect_ratio = aspect; }
 
-          public:
+        public:
             math::Vec3 position;
             math::Vec3 forward;
             math::Vec3 up;

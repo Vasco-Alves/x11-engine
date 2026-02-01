@@ -8,12 +8,11 @@
 #include <memory>
 
 class SandboxApp : public x11engine::Application {
-  public:
+public:
     bool OnCreate() override {
-        // Create a few cubes
         objects.push_back(std::make_unique<x11engine::objects::Cube>(0, 0, -200, 100, x11engine::color::RED));
-        objects.push_back(std::make_unique<x11engine::objects::Cube>(150, 50, -250, 80, x11engine::color::CYAN));
-        objects.push_back(std::make_unique<x11engine::objects::Cube>(-150, -50, -250, 80, x11engine::color::GREEN));
+        objects.push_back(std::make_unique<x11engine::objects::SquarePyramid>(200, 0, -300, 100, 100, x11engine::color::YELLOW));
+        objects.push_back(std::make_unique<x11engine::objects::TriangularPyramid>(-200, 100, -300, 80, 80, x11engine::color::MAGENTA));
 
         return true;
     }
@@ -51,7 +50,7 @@ class SandboxApp : public x11engine::Application {
             camera.SetAspectRatio((float)width / (float)height);
     }
 
-  private:
+private:
     x11engine::camera::Camera camera;
     std::vector<std::unique_ptr<x11engine::objects::Object>> objects;
 };

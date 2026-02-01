@@ -6,11 +6,11 @@
 namespace x11engine {
 
     class Input {
-      public:
+    public:
         void ProcessEvent(const XEvent& event);
         bool IsKeyDown(KeySym key) const;
 
-      private:
+    private:
         std::unordered_map<KeySym, bool> keys;
     };
 

@@ -12,7 +12,7 @@
 namespace x11engine {
 
     class Renderer {
-      public:
+    public:
         Renderer(int width, int height);
         ~Renderer();
 
@@ -29,13 +29,13 @@ namespace x11engine {
         int GetWidth() const { return width; }
         int GetHeight() const { return height; }
 
-      private:
+    private:
         void MapToScreenCoord(int& x, int& y); // Transform from Center-Origin to Top-Left-Origin
 
         void DrawPixelScreen(int x, int y, uint32_t color);
         void DrawPixel(int x, int y, uint32_t color);
 
-      private:
+    private:
         int width;
         int height;
         uint32_t* framebuffer;
