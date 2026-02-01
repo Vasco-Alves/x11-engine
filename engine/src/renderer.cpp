@@ -1,5 +1,27 @@
 #include <x11engine/renderer.hpp>
 
+namespace {
+    const int INSIDE = 0; // 0000
+    const int LEFT = 1;   // 0001
+    const int RIGHT = 2;  // 0010
+    const int BOTTOM = 4; // 0100
+    const int TOP = 8;    // 1000
+
+    // Helper to calculate region code for a point(x, y)
+    int ComputeOutCode(int x, int y, int w, int h) {
+        int code = INSIDE;
+        if (x < 0)
+            code |= LEFT;
+        else if (x >= w)
+            code |= RIGHT;
+        if (y < 0)
+            code |= BOTTOM;
+        else if (y >= h)
+            code |= TOP;
+        return code;
+    }
+} // namespace
+
 namespace x11engine {
 
     Renderer::Renderer(int width, int height) : width(width), height(height), framebuffer(nullptr), image(nullptr) {
@@ -80,6 +102,60 @@ namespace x11engine {
     }
 
     void Renderer::DrawLine(int x0, int y0, int x1, int y1, uint32_t color) {
+        // --- 1. Cohen-Sutherland 2D Clipping ---
+        int outcode0 = ComputeOutCode(x0, y0, width, height);
+        int outcode1 = ComputeOutCode(x1, y1, width, height);
+        bool accept = false;
+
+        while (true) {
+            if (!(outcode0 | outcode1)) {
+                // Both points inside - trivial accept
+                accept = true;
+                break;
+            } else if (outcode0 & outcode1) {
+                // Both points share an outside zone - trivial reject
+                break;
+            } else {
+                // One inside, one outside: Clip
+                int x, y;
+                // Pick the outside point
+                int outcodeOut = outcode0 ? outcode0 : outcode1;
+
+                // Find intersection point
+                // Use floating point for precision during clip, then cast back
+                if (outcodeOut & TOP) { // Above clip window
+                    x = x0 + (x1 - x0) * (height - 1 - y0) / (double)(y1 - y0);
+                    y = height - 1;
+                } else if (outcodeOut & BOTTOM) { // Below clip window
+                    x = x0 + (x1 - x0) * (0 - y0) / (double)(y1 - y0);
+                    y = 0;
+                } else if (outcodeOut & RIGHT) { // Right of clip window
+                    y = y0 + (y1 - y0) * (width - 1 - x0) / (double)(x1 - x0);
+                    x = width - 1;
+                } else if (outcodeOut & LEFT) { // Left of clip window
+                    y = y0 + (y1 - y0) * (0 - x0) / (double)(x1 - x0);
+                    x = 0;
+                }
+
+                // Update the point we moved
+                if (outcodeOut == outcode0) {
+                    x0 = x;
+                    y0 = y;
+                    outcode0 = ComputeOutCode(x0, y0, width, height);
+                } else {
+                    x1 = x;
+                    y1 = y;
+                    outcode1 = ComputeOutCode(x1, y1, width, height);
+                }
+            }
+        }
+
+        if (!accept)
+            return;
+
+        // --- 2. Original Bresenham's Algorithm (Unchanged) ---
+        // Now x0,y0 and x1,y1 are guaranteed to be on-screen
+
         int dx = std::abs(x1 - x0);
         int dy = -std::abs(y1 - y0);
         int sx = x0 < x1 ? 1 : -1;
@@ -87,7 +163,11 @@ namespace x11engine {
         int err = dx + dy;
 
         while (true) {
+            // We can use the unsafe fast draw here because we clipped bounds!
+            // But stick to DrawPixelScreen for safety if you prefer.
+            // framebuffer[y0 * width + x0] = color;
             DrawPixelScreen(x0, y0, color);
+
             if (x0 == x1 && y0 == y1)
                 break;
             int e2 = 2 * err;
@@ -100,43 +180,6 @@ namespace x11engine {
                 y0 += sy;
             }
         }
-    }
-
-    void Renderer::DrawRect(int x, int y, int w, int h, uint32_t color) {
-        int startX = std::max(0, x - w / 2);
-        int startY = std::max(0, y - h / 2);
-        int endX = std::min(width, x + w / 2);
-        int endY = std::min(height, y + h / 2);
-
-        for (int py = startY; py < endY; ++py) {
-            int rowOffset = py * width;
-            for (int px = startX; px < endX; ++px) {
-                framebuffer[rowOffset + px] = color;
-            }
-        }
-    }
-
-    void Renderer::DrawRectWireframe(int x, int y, int w, int h, uint32_t color) {
-        int left = x - w / 2;
-        int right = x + w / 2;
-        int top = y - h / 2;
-        int bottom = y + h / 2;
-
-        // Top edge
-        for (int px = left; px <= right; ++px)
-            DrawPixelScreen(px, top, color);
-
-        // Bottom edge
-        for (int px = left; px <= right; ++px)
-            DrawPixelScreen(px, bottom, color);
-
-        // Left edge
-        for (int py = top; py <= bottom; ++py)
-            DrawPixelScreen(left, py, color);
-
-        // Right edge
-        for (int py = top; py <= bottom; ++py)
-            DrawPixelScreen(right, py, color);
     }
 
 } // namespace  x11engine

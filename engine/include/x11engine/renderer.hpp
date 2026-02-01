@@ -22,8 +22,6 @@ namespace x11engine {
         void Resize(const Frame& frame, int newWidth, int newHeight); // Resize the framebuffer
 
         void DrawLine(int x0, int y0, int x1, int y1, uint32_t color); // Bresenham's line algorithm
-        void DrawRect(int x, int y, int w, int h, uint32_t color);
-        void DrawRectWireframe(int x, int y, int w, int h, uint32_t color);
 
         uint32_t* GetFramebuffer() { return framebuffer; }
         int GetWidth() const { return width; }

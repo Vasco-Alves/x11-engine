@@ -35,41 +35,113 @@ namespace x11engine::objects {
         Mat4 model = GetModelMatrix();
         Mat4 mvp = viewProj * model;
 
-        // Use a dynamic vector or a fixed max buffer if you know vertex count limit
-        // Since vertices are member variables, we know vertices.size()
-        std::vector<math::Vec2> projectedPoints(vertices.size());
-        std::vector<bool> valid(vertices.size());
+        // 1. Transform ALL vertices to Clip Space (Vec4)
+        // We keep them as Vec4 so we can inspect 'w' before dividing
+        std::vector<math::Vec4> clipSpaceVerts(vertices.size());
+        for (size_t i = 0; i < vertices.size(); ++i) {
+            clipSpaceVerts[i] = mvp * math::Vec4{vertices[i].x, vertices[i].y, vertices[i].z, 1.0f};
+        }
 
         float halfW = renderer.GetWidth() * 0.5f;
         float halfH = renderer.GetHeight() * 0.5f;
 
-        // 1. Project All Vertices
-        for (size_t i = 0; i < vertices.size(); ++i) {
-            math::Vec4 clip = mvp * math::Vec4{vertices[i].x, vertices[i].y, vertices[i].z, 1.0f};
+        // Defines how close things can be before we cut them (The Near Plane)
+        const float nearClip = 0.1f;
 
-            // Simple clipping check (behind camera)
-            if (clip.w < 0.1f) {
-                valid[i] = false;
+        // Helper: Convert Clip Space (Vec4) to Screen Space (Vec2)
+        auto ToScreen = [&](const math::Vec4& v) -> math::Vec2 {
+            float invW = 1.0f / v.w;
+            return {(v.x * invW + 1.0f) * halfW, (1.0f - v.y * invW) * halfH};
+        };
+
+        // 2. Iterate over EDGES to handle visibility
+        for (size_t i = 0; i < edgeCount; ++i) {
+            math::Vec4 v1 = clipSpaceVerts[edges[i][0]];
+            math::Vec4 v2 = clipSpaceVerts[edges[i][1]];
+
+            // A point is "visible" if it is in front of the Near Plane (w >= 0.1)
+            bool v1In = v1.w >= nearClip;
+            bool v2In = v2.w >= nearClip;
+
+            // CASE A: Both points are behind the camera -> Skip completely
+            if (!v1In && !v2In)
+                continue;
+
+            // CASE B: Both points are visible -> Draw normally
+            if (v1In && v2In) {
+                math::Vec2 p1 = ToScreen(v1);
+                math::Vec2 p2 = ToScreen(v2);
+                renderer.DrawLine((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y, color);
                 continue;
             }
-            valid[i] = true;
 
-            // Perspective Divide & Viewport Transform
-            float invW = 1.0f / clip.w;
-            projectedPoints[i].x = (clip.x * invW + 1.0f) * halfW;
-            projectedPoints[i].y = (1.0f - clip.y * invW) * halfH;
-        }
+            // CASE C: One visible, one behind camera -> CLIP!
+            // We need to find the point 't' where the line hits the Near Plane
 
-        // 2. Draw Edges using the generic list passed in
-        for (size_t i = 0; i < edgeCount; ++i) {
-            int idx1 = edges[i][0];
-            int idx2 = edges[i][1];
-
-            if (valid[idx1] && valid[idx2]) {
-                renderer.DrawLine((int)projectedPoints[idx1].x, (int)projectedPoints[idx1].y, (int)projectedPoints[idx2].x, (int)projectedPoints[idx2].y, color);
+            // Ensure v1 is the visible one (swap if needed) for simpler math
+            if (!v1In) {
+                math::Vec4 temp = v1;
+                v1 = v2;
+                v2 = temp;
             }
+            // Now: v1 is IN (visible), v2 is OUT (behind camera)
+
+            // Interpolation formula:
+            // We want to find t such that: interpolate(v1.w, v2.w, t) == nearClip
+            // v1.w + t * (v2.w - v1.w) = nearClip
+            float t = (nearClip - v1.w) / (v2.w - v1.w);
+
+            // Calculate the new clipped vertex exactly on the near plane
+            // Your math library supports Vec4 operators, making this easy:
+            math::Vec4 vClipped = v1 + (v2 - v1) * t;
+
+            // Draw from the visible vertex (v1) to the new clipped vertex
+            math::Vec2 p1 = ToScreen(v1);
+            math::Vec2 p2 = ToScreen(vClipped);
+
+            renderer.DrawLine((int)p1.x, (int)p1.y, (int)p2.x, (int)p2.y, color);
         }
     }
+
+    // void Object3D::DrawWireframe(Renderer& renderer, const Mat4& viewProj, const int (*edges)[2], size_t edgeCount) {
+    //     Mat4 model = GetModelMatrix();
+    //     Mat4 mvp = viewProj * model;
+
+    //     // Use a dynamic vector or a fixed max buffer if you know vertex count limit
+    //     // Since vertices are member variables, we know vertices.size()
+    //     std::vector<math::Vec2> projectedPoints(vertices.size());
+    //     std::vector<bool> valid(vertices.size());
+
+    //     float halfW = renderer.GetWidth() * 0.5f;
+    //     float halfH = renderer.GetHeight() * 0.5f;
+
+    //     // 1. Project All Vertices
+    //     for (size_t i = 0; i < vertices.size(); ++i) {
+    //         math::Vec4 clip = mvp * math::Vec4{vertices[i].x, vertices[i].y, vertices[i].z, 1.0f};
+
+    //         // Simple clipping check (behind camera)
+    //         if (clip.w < 0.1f) {
+    //             valid[i] = false;
+    //             continue;
+    //         }
+    //         valid[i] = true;
+
+    //         // Perspective Divide & Viewport Transform
+    //         float invW = 1.0f / clip.w;
+    //         projectedPoints[i].x = (clip.x * invW + 1.0f) * halfW;
+    //         projectedPoints[i].y = (1.0f - clip.y * invW) * halfH;
+    //     }
+
+    //     // 2. Draw Edges using the generic list passed in
+    //     for (size_t i = 0; i < edgeCount; ++i) {
+    //         int idx1 = edges[i][0];
+    //         int idx2 = edges[i][1];
+
+    //         if (valid[idx1] && valid[idx2]) {
+    //             renderer.DrawLine((int)projectedPoints[idx1].x, (int)projectedPoints[idx1].y, (int)projectedPoints[idx2].x, (int)projectedPoints[idx2].y, color);
+    //         }
+    //     }
+    // }
 
     // --- Cube Implementation ---
 
