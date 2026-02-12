@@ -8,10 +8,10 @@
 
 namespace x11engine::math {
 
-    constexpr float pi = 3.14159265358979323846f;
+    // constexpr float pi = 3.14159265358979323846f;
 
-    constexpr float radians(float degrees) noexcept { return degrees * (pi / 180.0f); }
-    constexpr float degrees(float radians) noexcept { return radians * (180.0f / pi); }
+    constexpr float radians(float degrees) noexcept { return degrees * (M_PI / 180.0f); }
+    constexpr float degrees(float radians) noexcept { return radians * (180.0f / M_PI); }
 
     struct Vec2 {
         float x, y;
@@ -214,8 +214,8 @@ namespace x11engine::math {
     // Result = c0*v.x + c1*v.y + c2*v.z + c3*v.w
     inline Vec4 operator*(const Mat4& m, const Vec4& v) noexcept {
         if consteval {
-            return {m.c0.x * v.x + m.c1.x * v.y + m.c2.x * v.z + m.c3.x * v.w, m.c0.y * v.x + m.c1.y * v.y + m.c2.y * v.z + m.c3.y * v.w,
-                    m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z + m.c3.z * v.w, m.c0.w * v.x + m.c1.w * v.y + m.c2.w * v.z + m.c3.w * v.w};
+            return {m.c0.x * v.x + m.c1.x * v.y + m.c2.x * v.z + m.c3.x * v.w, m.c0.y * v.x + m.c1.y * v.y + m.c2.y * v.z + m.c3.y * v.w, m.c0.z * v.x + m.c1.z * v.y + m.c2.z * v.z + m.c3.z * v.w,
+                    m.c0.w * v.x + m.c1.w * v.y + m.c2.w * v.z + m.c3.w * v.w};
         } else {
             __m128 res = _mm_mul_ps(m.c0.mm, _mm_set1_ps(v.x));
             res = _mm_add_ps(res, _mm_mul_ps(m.c1.mm, _mm_set1_ps(v.y)));

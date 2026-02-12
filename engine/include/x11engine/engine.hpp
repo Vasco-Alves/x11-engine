@@ -10,7 +10,7 @@
 namespace x11engine {
 
     const double TICK_RATE = 60.0;
-    const double TARGET_FPS = 0.0;
+    const double TARGET_FPS = 100.0;
 
     class Application;
 

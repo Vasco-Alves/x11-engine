@@ -16,6 +16,7 @@ namespace x11engine {
         using math::Mat4;
         using math::Vec3;
 
+        // --- Base Object Interface ---
         class Object {
         public:
             virtual ~Object() = default;
@@ -23,6 +24,7 @@ namespace x11engine {
             virtual void Draw(Renderer& renderer, const Mat4& viewProj) = 0;
         };
 
+        // --- Object3D Base Class ---
         class Object3D : public Object {
         public:
             Object3D(float x, float y, float z, uint32_t color);
@@ -38,11 +40,11 @@ namespace x11engine {
             uint32_t color;
             std::vector<Vec3> vertices;
 
-            void DrawWireframe(Renderer& renderer, const Mat4& viewProj, const int (*edges)[2], size_t edgeCount);
+            // Updated signature to use vector reference for safety and speed
+            void DrawWireframe(Renderer& renderer, const Mat4& viewProj, const std::vector<std::array<int, 2>>& edges);
         };
 
         // --- Cube ---
-
         class Cube : public Object3D {
         public:
             Cube(float x, float y, float z, float size, uint32_t color);
@@ -51,11 +53,10 @@ namespace x11engine {
             void Draw(Renderer& renderer, const Mat4& viewProj) override;
 
         private:
-            static const int edges[12][2];
+            static const std::vector<std::array<int, 2>> edges;
         };
 
         // --- Triangular Pyramid ---
-
         class TriangularPyramid : public Object3D {
         public:
             TriangularPyramid(float x, float y, float z, float baseSize, float height, uint32_t color);
@@ -64,11 +65,10 @@ namespace x11engine {
             void Draw(Renderer& renderer, const Mat4& viewProj) override;
 
         private:
-            static const int edges[6][2]; // 3 base edges + 3 rising edges
+            static const std::vector<std::array<int, 2>> edges;
         };
 
         // --- Square Pyramid ---
-
         class SquarePyramid : public Object3D {
         public:
             SquarePyramid(float x, float y, float z, float baseSize, float height, uint32_t color);
@@ -77,7 +77,7 @@ namespace x11engine {
             void Draw(Renderer& renderer, const Mat4& viewProj) override;
 
         private:
-            static const int edges[8][2]; // 4 base edges + 4 rising edges
+            static const std::vector<std::array<int, 2>> edges;
         };
 
         // --- UV Sphere ---
@@ -89,7 +89,8 @@ namespace x11engine {
             void Draw(Renderer& renderer, const Mat4& viewProj) override;
 
         private:
-            std::vector<std::pair<int, int>> edges;
+            // Sphere edges are dynamic based on rings/sectors, so they are not static
+            std::vector<std::array<int, 2>> sphereEdges;
         };
 
     } // namespace objects
