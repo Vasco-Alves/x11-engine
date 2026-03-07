@@ -1,6 +1,6 @@
 #pragma once
 
-#include <x11engine/math.hpp>
+#include "x11engine/math.hpp"
 
 namespace x11engine {
 
@@ -22,6 +22,8 @@ namespace x11engine {
             math::Mat4 GetProjectionMatrix() const noexcept;
 
             void SetAspectRatio(float aspect) { aspect_ratio = aspect; }
+
+            void SetPosition(float x, float y, float z) { position = {x, y, z}; }
 
         public:
             math::Vec3 position;

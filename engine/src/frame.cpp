@@ -1,5 +1,6 @@
+#include "x11engine/frame.hpp"
+
 #include <X11/Xutil.h>
-#include <x11engine/frame.hpp>
 #include <iostream>
 
 namespace x11engine {

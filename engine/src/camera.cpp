@@ -1,6 +1,6 @@
-#include <x11engine/camera.hpp>
-#include <x11engine/input.hpp> // We need the full definition of Input here
-#include <x11engine/math.hpp>
+#include "x11engine/camera.hpp"
+#include "x11engine/input.hpp"
+#include "x11engine/math.hpp"
 
 #include <X11/keysym.h> // For XK_* constants
 #include <cmath>
@@ -8,8 +8,7 @@
 namespace x11engine::camera {
 
     Camera::Camera()
-        : position{0.0f, 0.0f, 0.0f}, forward{0.0f, 0.0f, -1.0f}, up{0.0f, 1.0f, 0.0f}, yaw(-90.0f), pitch(0.0f), fov_degrees{74.0f},
-          aspect_ratio{4.0f / 3.0f}, near_plane{0.1f}, far_plane{100.0f} {}
+        : position{0.0f, 0.0f, 0.0f}, forward{0.0f, 0.0f, -1.0f}, up{0.0f, 1.0f, 0.0f}, yaw(-90.0f), pitch(0.0f), fov_degrees{74.0f}, aspect_ratio{4.0f / 3.0f}, near_plane{0.1f}, far_plane{100.0f} {}
 
     void Camera::Update(const Input& input) {
         // 1. Rotation
@@ -73,8 +72,6 @@ namespace x11engine::camera {
 
     math::Mat4 Camera::GetViewMatrix() const noexcept { return math::lookAt(position, position + forward, up); }
 
-    math::Mat4 Camera::GetProjectionMatrix() const noexcept {
-        return math::perspective(math::radians(fov_degrees), aspect_ratio, near_plane, far_plane);
-    }
+    math::Mat4 Camera::GetProjectionMatrix() const noexcept { return math::perspective(math::radians(fov_degrees), aspect_ratio, near_plane, far_plane); }
 
 } // namespace x11engine::camera

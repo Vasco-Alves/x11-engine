@@ -3,24 +3,31 @@
 #include <x11engine/objects.hpp>
 #include <x11engine/camera.hpp>
 #include <x11engine/color.hpp>
+#include <x11engine/player.hpp>
 
 #include <vector>
 #include <memory>
+
+namespace Object = x11engine::objects;
+namespace Color = x11engine::color;
 
 class SandboxApp : public x11engine::Application {
 public:
     bool OnCreate() override {
         // 1. Cube: Size 100 (extends -50 to +50 from center)
-        objects.push_back(std::make_unique<x11engine::objects::Cube>(0.0f, 0.0f, -200.0f, 100.0f, x11engine::color::RED));
+        objects.push_back(std::make_unique<Object::Cube>(0.0f, 0.0f, -200.0f, 100.0f, Color::RED));
 
         // 2. Sphere: Radius 50 (Diameter 100). Should look same width as Cube.
-        objects.push_back(std::make_unique<x11engine::objects::Sphere>(150.0f, 0.0f, -200.0f, 50.0f, 16, 32, x11engine::color::GREEN));
+        objects.push_back(std::make_unique<Object::Sphere>(150.0f, 0.0f, -200.0f, 50.0f, 16, 2, Color::GREEN));
 
         // 3. Square Pyramid
-        objects.push_back(std::make_unique<x11engine::objects::SquarePyramid>(-150.0f, 0.0f, -200.0f, 100.0f, 100.0f, x11engine::color::YELLOW));
+        objects.push_back(std::make_unique<Object::SquarePyramid>(-150.0f, 0.0f, -200.0f, 100.0f, 100.0f, Color::YELLOW));
 
         // 4. Triangular Pyramid
-        objects.push_back(std::make_unique<x11engine::objects::TriangularPyramid>(0.0f, 150.0f, -200.0f, 80.0f, 100.0f, x11engine::color::MAGENTA));
+        objects.push_back(std::make_unique<Object::TriangularPyramid>(0.0f, 150.0f, -200.0f, 80.0f, 100.0f, Color::MAGENTA));
+
+        // Player
+        // objects.push_back(std::make_unique<Object::Player>(0.0f, 0.0f, 0.0f, 100.0f, Color::GRAY));
 
         return true;
     }
@@ -43,7 +50,7 @@ public:
             return;
 
         // Clear screen
-        renderer->Clear(x11engine::color::BLACK);
+        renderer->Clear(Color::BLACK);
 
         // Calculate ViewProjection Matrix
         auto view = camera.GetViewMatrix();

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "color.hpp"
-#include "frame.hpp"
+#include "x11engine/color.hpp"
+#include "x11engine/frame.hpp"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
